@@ -17,8 +17,12 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
     var bitmap:Bitmap?=null
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     val renderer = BrokenImageRenderer(this)
+    var listener:BrokenImageSetListener?=null
     override fun setImageBitmap(bitmap: Bitmap) {
         this.bitmap = bitmap
+    }
+    fun addBrokenImageListener(setListener: () -> Unit,resetListener: () -> Unit) {
+        listener = BrokenImageSetListener(setListener, resetListener)
     }
     override fun onDraw(canvas:Canvas) {
         renderer.render(canvas,paint)
@@ -117,8 +121,12 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
         }
         fun update() {
             if(animated) {
-                container.update{
+                container.update{ scale ->
                     animated = false
+                    when(scale) {
+                        0f -> view.listener?.resetListener?.invoke()
+                        1f -> view.listener?.setListener?.invoke()
+                    }
                 }
                 try {
                     Thread.sleep(50)
@@ -161,6 +169,7 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
             return view
         }
     }
+    data class BrokenImageSetListener(var setListener:()->Unit,var resetListener:()->Unit)
 }
 fun Int.toXRect(size:Float):Float = size*this
 fun Int.toYRect(size:Float):Float = size*this
