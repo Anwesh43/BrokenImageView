@@ -1,5 +1,6 @@
 package ui.anwesome.com.lineindicatorview
 
+import android.app.Activity
 import android.content.Context
 
 /**
@@ -8,6 +9,8 @@ import android.content.Context
 import android.content.*
 import android.view.*
 import android.graphics.*
+import android.hardware.display.DisplayManager
+
 class LineIndicatorView(ctx:Context):View(ctx) {
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     var scale = 0f
@@ -21,5 +24,17 @@ class LineIndicatorView(ctx:Context):View(ctx) {
     fun update(scale:Float) {
         this.scale = scale
         invalidate()
+    }
+    companion object {
+        fun create(activity:Activity):LineIndicatorView {
+            val view = LineIndicatorView(activity)
+            val displayManager = activity.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            val display = displayManager.getDisplay(0)
+            val size = Point()
+            display?.getSize(size)
+            activity.addContentView(view,ViewGroup.LayoutParams(size.x,size.y/20))
+            view.y = (9*size.y/10-size.y/20).toFloat()
+            return view
+        }
     }
 }
