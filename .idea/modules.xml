@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/KotlinBrokenImageView.iml" filepath="$PROJECT_DIR$/KotlinBrokenImageView.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/brokenimageview/brokenimageview.iml" filepath="$PROJECT_DIR$/brokenimageview/brokenimageview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lineindicatorview/lineindicatorview.iml" filepath="$PROJECT_DIR$/lineindicatorview/lineindicatorview.iml" />
     </modules>
   </component>
 </project>
