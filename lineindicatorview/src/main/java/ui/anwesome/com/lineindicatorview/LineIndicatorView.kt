@@ -19,7 +19,10 @@ class LineIndicatorView(ctx:Context):View(ctx) {
         val w = canvas.width.toFloat()
         val h = canvas.height.toFloat()
         paint.strokeWidth = canvas.height.toFloat()/2
-        canvas.drawLine(w/10,h/2,w/10+(4*w/5)*scale,h/2,paint)
+        paint.color = Color.parseColor("#4A148C")
+        if(scale > 0) {
+            canvas.drawLine(w / 10, h / 2, w / 10 + (4 * w / 5) * scale, h / 2, paint)
+        }
     }
     fun update(scale:Float) {
         this.scale = scale
