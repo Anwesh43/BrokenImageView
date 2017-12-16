@@ -14,12 +14,16 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
 class BrokenImageView(ctx:Context):ImageView(ctx) {
+    var onUpdateListener:OnUpdateListener?=null
     var bitmap:Bitmap?=null
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     val renderer = BrokenImageRenderer(this)
     var listener:BrokenImageSetListener?=null
     override fun setImageBitmap(bitmap: Bitmap) {
         this.bitmap = bitmap
+    }
+    fun addUpdateListener(updateListener:(Float)->Unit) {
+        this.onUpdateListener = OnUpdateListener(updateListener)
     }
     fun addBrokenImageListener(setListener: () -> Unit,resetListener: () -> Unit) {
         listener = BrokenImageSetListener(setListener, resetListener)
@@ -36,8 +40,9 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
         return true
     }
     data class BrokenImageState(var dir:Float = 0f,var scale:Float = 0f,var prevScale:Float = 0f) {
-        fun update(stopcb:(Float)->Unit) {
+        fun update(stopcb:(Float)->Unit,updateCb: (Float) -> Unit) {
             scale += dir*0.1f
+            updateCb(scale)
             if(Math.abs(scale - prevScale) > 1) {
                 scale = prevScale + dir
                 dir = 0f
@@ -107,8 +112,8 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
                 brokenImage.draw(bitmap,canvas,paint,size.toFloat(),state.scale)
             }
         }
-        fun update(stopcb:(Float)->Unit) {
-            state.update(stopcb)
+        fun update(stopcb:(Float)->Unit,updateCb:(Float)->Unit) {
+            state.update(stopcb,updateCb)
         }
         fun startUpdating(startcb:()->Unit) {
             state.startUpdating(startcb)
@@ -121,13 +126,15 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
         }
         fun update() {
             if(animated) {
-                container.update{ scale ->
+                container.update({ scale ->
                     animated = false
                     when(scale) {
                         0f -> view.listener?.resetListener?.invoke()
                         1f -> view.listener?.setListener?.invoke()
                     }
-                }
+                },{scale ->
+                   view.onUpdateListener?.updateListener?.invoke(scale)
+                })
                 try {
                     Thread.sleep(50)
                     view.invalidate()
@@ -170,6 +177,7 @@ class BrokenImageView(ctx:Context):ImageView(ctx) {
         }
     }
     data class BrokenImageSetListener(var setListener:()->Unit,var resetListener:()->Unit)
+    data class OnUpdateListener(var updateListener:(Float)->Unit)
 }
 fun Int.toXRect(size:Float):Float = size*this
 fun Int.toYRect(size:Float):Float = size*this
